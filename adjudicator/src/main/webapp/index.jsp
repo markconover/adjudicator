@@ -1,5 +1,5 @@
 <html>
 <body>
-<h2>Hello World!</h2>
+<h2>Readable data from the database for this user</h2>
 </body>
 </html>

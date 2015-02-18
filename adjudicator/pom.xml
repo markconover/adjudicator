@@ -9,6 +9,11 @@
 	<url>http://maven.apache.org</url>
 	<dependencies>
 		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+		</dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
@@ -28,18 +33,22 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.2</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.2</version>
+				<version>2.0</version>
 				<configuration>
 					<url>http://localhost:8080/manager</url>
-					<serverXml>${basedir}/src/main/resources/tomcatconf/server.xml</serverXml>
-					<path>/${project.artifactId}</path>
+					<port>8080</port>
+					<ajpPort>8010</ajpPort>
+					<tomcatWebXml>${basedir}/src/main/resources/tomcatconf/web.xml</tomcatWebXml>
+					<tomcatLoggingFile>${basedir}/src/main/resources/tomcatconf/logging.properties</tomcatLoggingFile>
+					<tomcatUsers>${basedir}/src/main/resources/tomcatconf/tomcat-users.xml</tomcatUsers>
+					<path>/adjudicator</path>
 				</configuration>
 				<dependencies>
 					<dependency>
