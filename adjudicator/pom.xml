@@ -10,8 +10,15 @@
 	<dependencies>
 		<dependency>
 			<groupId>javax.servlet</groupId>
+			<artifactId>jsp-api</artifactId>
+			<version>2.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>3.1.0</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -42,13 +49,18 @@
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.0</version>
 				<configuration>
-					<url>http://localhost:8080/manager</url>
 					<port>8080</port>
 					<ajpPort>8010</ajpPort>
+					<serverXml>${basedir}/src/main/resources/tomcatconf/server.xml</serverXml>
 					<tomcatWebXml>${basedir}/src/main/resources/tomcatconf/web.xml</tomcatWebXml>
 					<tomcatLoggingFile>${basedir}/src/main/resources/tomcatconf/logging.properties</tomcatLoggingFile>
-					<tomcatUsers>${basedir}/src/main/resources/tomcatconf/tomcat-users.xml</tomcatUsers>
 					<path>/adjudicator</path>
+					<systemProperties>
+						<JAVA_OPTS>-Djava.security.auth.login.config=${basedir}/src/main/resources/jaas.config</JAVA_OPTS>
+					</systemProperties>
+					<additionalClasspathDirs>
+						<additionalClasspathDir> ${project.build.directory}/tomcat/lib</additionalClasspathDir>
+					</additionalClasspathDirs>
 				</configuration>
 				<dependencies>
 					<dependency>
