@@ -230,7 +230,7 @@ public class JAASLoginModule implements LoginModule {
           rs = stmt.executeQuery();
    
           if (rs.next()) { 
-              roleList.add(rs.getString("rolename")); 
+              roleList.add(rs.getString("role_name")); 
           }
       } catch (Exception e) {
           LOGGER.fine("Error when loading user from the database " + e);
