@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import com.mysql.jdbc.Connection;
+
 //@WebServlet(name="adjudicator", urlPatterns={"/adjudicator"})
 //public class Adjudicator extends HttpServlet {
 public class Adjudicator {
@@ -43,7 +45,7 @@ public class Adjudicator {
 //		String password = req.getParameter("password");
 //		
 //		// Query username
-//		// Get DataSource
+		// Get DataSource
 //		Context ctx = null;
 //		try {
 //			ctx = new InitialContext();
@@ -53,7 +55,7 @@ public class Adjudicator {
 //		}
 //		DataSource ds = null;
 //		try {
-//			ds = (DataSource)ctx.lookup("java:comp/env/jdbc/mydatabase");
+//			ds = (DataSource)ctx.lookup("java:comp/env/jdbc/adjudicator");
 //		} catch (NamingException e1) {
 //			// TODO Auto-generated catch block
 //			e1.printStackTrace();

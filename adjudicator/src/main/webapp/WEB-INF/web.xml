@@ -186,7 +186,7 @@
 		<web-resource-collection>
 			<web-resource-name>AdjudicatorProject</web-resource-name>
 			<description />
-			<url-pattern>/adduser.html</url-pattern>
+			<url-pattern>/adduser.jsp</url-pattern>
 			<url-pattern>/adduser</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
