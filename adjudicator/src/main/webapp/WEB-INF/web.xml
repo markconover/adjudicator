@@ -4,9 +4,8 @@
 
 <web-app>
 	<display-name>Adjudicator Project</display-name>
-	<!-- ------------------------------------------------------------------- -->
+	
 	<!-- Servlets -->
-	<!-- ------------------------------------------------------------------- -->
 	<!-- The default servlet for all web applications, that serves static -->
 	<!-- resources. It processes all requests that are not mapped to other -->
 	<!-- servlets with servlet mappings. -->
@@ -167,10 +166,7 @@
 		<servlet-class>villanova.ethicalhacking.servlets.AddGroupRoleServlet</servlet-class>
 	</servlet>
 
-
-	<!-- ------------------------------------------------------------------- -->
 	<!-- Servlet Mappings -->
-	<!-- ------------------------------------------------------------------- -->
 	<!-- The mapping for the default servlet -->
 	<servlet-mapping>
 		<servlet-name>default</servlet-name>
@@ -194,9 +190,7 @@
 		<url-pattern>/addgrouprole</url-pattern>
 	</servlet-mapping>
 
-	<!-- ------------------------------------------------------------------- -->
 	<!-- Security Constraints -->
-	<!-- ------------------------------------------------------------------- -->
 	<security-constraint>
 		<display-name>All web pages</display-name>
 		<web-resource-collection>
@@ -236,9 +230,7 @@
 		</form-login-config>
 	</login-config>
 
-	<!-- ------------------------------------------------------------------- -->
 	<!-- Security Roles -->
-	<!-- ------------------------------------------------------------------- -->
 	<security-role>
 		<description>Has access to all web pages.</description>
 		<role-name>administrator</role-name>
