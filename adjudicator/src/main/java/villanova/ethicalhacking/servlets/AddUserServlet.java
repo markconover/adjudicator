@@ -1,4 +1,4 @@
-package villanova.ethicalhacking;
+package villanova.ethicalhacking.servlets;
 
 import java.io.IOException;
 import java.io.PrintWriter;
