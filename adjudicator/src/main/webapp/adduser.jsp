@@ -46,25 +46,25 @@
   	ResultSetMetaData resMetaData = rs.getMetaData();
   	String role = null;
 %>
-	<form id="add-user-form" action="/adduser" method="post">
+	<form id="add-user-form" action="adduser" method="post">
 		<fieldset>
 			<h1>Add User</h1>
 			<div>Username</div>
 			<div>
-				<input type="text" id="username" placeholder="johndoe" />
+				<input type="text" name="username" placeholder="johndoe" />
 			</div>
 			<div>Password</div>
 			<div>
-				<input type="password" id="password" placeholder="password" />
+				<input type="password" name="password" placeholder="password" />
 			</div>
 			<div>Repeat Password</div>
 			<div>
-				<input type="password" id="repeat-password" placeholder="password" />
+				<input type="password" name="repeat-password" placeholder="password" />
 			</div>
 			<!-- Dynamically retrieve all role possibilities from database. -->
 			<div>Choose User Role/s</div>
 			<div>
-				<select id="user-role">
+				<select name="user-role">
 					<% while (rs.next()) { 
 					    role = rs.getString(1);
 					%>
@@ -74,7 +74,7 @@
 			</div>
 			<div>Choose Group Role/s</div>
 			<div>
-				<select id="group-role">
+				<select name="group-role">
 				<%
 			  		stmt = conn.createStatement();
 			  		rs = stmt.executeQuery("SELECT role_name FROM adjudicator.roles");
@@ -88,7 +88,7 @@
 				</select>
 			</div>
 			<br />
-			<input type="submit" value="Create User" id="submit" />
+			<input type="submit" value="Create User" />
 		</fieldset>
 	</form>
 <%

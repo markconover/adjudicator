@@ -65,7 +65,7 @@
 		</dependency>
 	</dependencies>
 	<build>
-	 	<finalName>${project.artifactId}</finalName>
+		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -136,7 +136,7 @@
 							<cargo.servlet.port>${http.port}</cargo.servlet.port>
 							<cargo.standalone.ignoreNonExistingProperties>true</cargo.standalone.ignoreNonExistingProperties>
 							<cargo.servlet.port>80</cargo.servlet.port>
-						<!-- 	<cargo.servlet.users>consumer:pwd:consumer|producer:pwd:consumer,producer|mangui:pwd:manager-gui</cargo.servlet.users> -->
+							<!-- <cargo.servlet.users>consumer:pwd:consumer|producer:pwd:consumer,producer|mangui:pwd:manager-gui</cargo.servlet.users> -->
 						</properties>
 						<configfiles>
 							<configfile>
