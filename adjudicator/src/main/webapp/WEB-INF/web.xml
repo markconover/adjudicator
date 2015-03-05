@@ -158,12 +158,8 @@
 		<servlet-class>villanova.ethicalhacking.servlets.AddUserServlet</servlet-class>
 	</servlet>
 	<servlet>
-		<servlet-name>adduserrole</servlet-name>
-		<servlet-class>villanova.ethicalhacking.servlets.AddUserRoleServlet</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>addgrouprole</servlet-name>
-		<servlet-class>villanova.ethicalhacking.servlets.AddGroupRoleServlet</servlet-class>
+		<servlet-name>addrole</servlet-name>
+		<servlet-class>villanova.ethicalhacking.servlets.AddRoleServlet</servlet-class>
 	</servlet>
 
 	<!-- Servlet Mappings -->
@@ -182,12 +178,8 @@
 		<url-pattern>/adduser</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>adduserrole</servlet-name>
-		<url-pattern>/adduserrole</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>addgrouprole</servlet-name>
-		<url-pattern>/addgrouprole</url-pattern>
+		<servlet-name>addrole</servlet-name>
+		<url-pattern>/addrole</url-pattern>
 	</servlet-mapping>
 
 	<!-- Security Constraints -->
@@ -198,18 +190,17 @@
 			<description />
 			<url-pattern>/adduser.jsp</url-pattern>
 			<url-pattern>/adduser</url-pattern>
-			<url-pattern>/adduserrole.jsp</url-pattern>
-			<url-pattern>/adduserrole</url-pattern>
-			<url-pattern>/addgrouprole.jsp</url-pattern>
-			<url-pattern>/addgrouprole</url-pattern>
+			<url-pattern>/addrole.jsp</url-pattern>
+			<url-pattern>/addrole</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<description />
 			<role-name>administrator</role-name>
 		</auth-constraint>
 	</security-constraint>
+	
 	<security-constraint>
-		<display-name>All web pages</display-name>
+		<display-name>Read Only</display-name>
 		<web-resource-collection>
 			<web-resource-name>AdjudicatorProject</web-resource-name>
 			<description />
@@ -234,5 +225,17 @@
 	<security-role>
 		<description>Has access to all web pages.</description>
 		<role-name>administrator</role-name>
+	</security-role>
+	<security-role>
+		<description>Basketball Player</description>
+		<role-name>Player</role-name>
+	</security-role>
+	<security-role>
+		<description>Assistant Coach</description>
+		<role-name>Assistant Coach</role-name>
+	</security-role>
+	<security-role>
+		<description>Head Coach</description>
+		<role-name>Head Coach</role-name>
 	</security-role>
 </web-app>

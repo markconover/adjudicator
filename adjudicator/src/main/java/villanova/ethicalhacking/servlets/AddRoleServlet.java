@@ -17,12 +17,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
 
-public class AddGroupRoleServlet extends HttpServlet {
+public class AddRoleServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 957462709932298088L;
 	
     private static Logger LOGGER = Logger.getLogger(
-		AddGroupRoleServlet.class.getName()); 
+		AddRoleServlet.class.getName()); 
     
     
  	/**
@@ -58,7 +58,7 @@ public class AddGroupRoleServlet extends HttpServlet {
  	 */
  	protected void processRequest(HttpServletRequest request,
  			HttpServletResponse response) throws ServletException, IOException {
- 		String groupRole = request.getParameter("group-role");
+ 		String role = request.getParameter("role");
 
  		// TODO: Verify that the group role does not already
  		// exist/is valid!
@@ -70,7 +70,7 @@ public class AddGroupRoleServlet extends HttpServlet {
  		try {
  		    connection = getConnection();
  		    stmt = connection.prepareStatement(sql);
- 		    stmt.setString(1, groupRole);
+ 		    stmt.setString(1, role);
  		    stmt.executeUpdate();
  		} catch (Exception e) {
  			LOGGER.fine("Error when adding group role to the database " + e);

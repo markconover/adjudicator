@@ -1,6 +1,6 @@
 <html>
 <head>
-	<title>Add User Role</title>
+	<title>Add Role</title>
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
 
@@ -11,14 +11,15 @@
 	<script src="js/bootstrap/bootstrap.min.js"></script>
 </head>
 <body>
-	<form id="add-user-role-form" action="adduserrole" method="post">
+	<form id="add-role-form" action="addrole" method="post">
 		<fieldset>
-			<h1>Add User Role</h1>
-			<div>User Role</div>
+			<h1>Add Role</h1>
+			<div>Role</div>
 			<div>
-				<input type="text" name="user-role" />
+				<input type="text" name="role"/>
 			</div>
-			<br /> <input type="submit" value="Create User Role" />
+			<br />
+			<input type="submit" value="Create Role" />
 		</fieldset>
 	</form>
 </body>

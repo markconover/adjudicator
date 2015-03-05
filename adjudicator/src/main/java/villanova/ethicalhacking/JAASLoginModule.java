@@ -22,7 +22,8 @@ import javax.security.auth.spi.LoginModule;
 
 public class JAASLoginModule implements LoginModule { 
  
-    private static Logger LOGGER = Logger.getLogger(JAASLoginModule.class.getName()); 
+    private static Logger LOGGER = Logger.getLogger(
+		JAASLoginModule.class.getName()); 
  
     // initial state
     private Subject subject;
@@ -229,7 +230,7 @@ public class JAASLoginModule implements LoginModule {
    
           rs = stmt.executeQuery();
    
-          if (rs.next()) { 
+          while (rs.next()) { 
               roleList.add(rs.getString("role_name")); 
           }
       } catch (Exception e) {
