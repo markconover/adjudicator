@@ -91,7 +91,17 @@
   	  		"where roles.id=data_table.role_id " +
   	  		"and roles.role_name='Assistant Coach' or " +
   	  		"where roles.id=data_table.role_id " +
-  	  		"and roles.role_name='Head Coach'");  */ 	  
+  	  		"and roles.role_name='Head Coach'");  */ 	
+  	  	// 1. get all the user's role id's
+  	  	// 2. parse out the hierarchial role id
+  	  	// 3. if "head coach" get the role id's for hierachial roles under
+  	  	//    "head coach" i.e. "assistant coach", "player"
+  	  	// 4. select all data that is labeled with the non-hierachial roles
+  	  	//    (i.e. the roles besides "head coach", "assistant coach", and 
+  	  	//    "player")
+  	  	// 5. Parse out the data of the set from step #4 that contains the
+  	  	//    hierarchical roles the user is priveleged to see.
+  	  	// NOTE: Use "UNION", "INTERSECT", "JOIN"
  		rs = stmt.executeQuery("select data_table.data " +
 	  		"from data_table, roles " + 
 	  		"where roles.id=data_table.role_id " +
