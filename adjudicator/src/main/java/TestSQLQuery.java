@@ -52,14 +52,12 @@ public class TestSQLQuery {
           stmt.setString(1, user);
           rs = stmt.executeQuery(); 
           String roleID = null;
-          String roleName = null;
           
           // the user's roles
           ArrayList<String> userRoles = new ArrayList<String>();
           
           while (rs.next()) {
         	  roleID = rs.getString("id");
-        	  roleName = rs.getString("role_name");
         	  // Check if "Head Coach"
         	  if (roleID.equals("3")) {
         		  // Add "Head Coach" to user's roles
