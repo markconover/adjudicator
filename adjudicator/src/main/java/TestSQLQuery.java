@@ -53,7 +53,10 @@ public class TestSQLQuery {
           rs = stmt.executeQuery(); 
           String roleID = null;
           String roleName = null;
+          
+          // the user's roles
           ArrayList<String> userRoles = new ArrayList<String>();
+          
           while (rs.next()) {
         	  roleID = rs.getString("id");
         	  roleName = rs.getString("role_name");
@@ -77,7 +80,15 @@ public class TestSQLQuery {
         		  userRoles.add(roleID);
         	  }
           }
+          
+          System.out.println("The user '" + user + "' has the following " +
+    		  "roles:");
+          for (String role : userRoles) {
+        	  System.out.println(role);
+          }
+          System.out.println("");
     	  
+          System.out.println("The following data is in the database:");
           // Get the each row of data and it's associated role's
 //    	  String dataRoleListSql = "select data_table.data, " +
 //			  "data_roles.data_id, data_roles.role_id " + 
@@ -86,7 +97,8 @@ public class TestSQLQuery {
 //    		  "on data_table.id=data_roles.data_id " +
 //			  "order by data_roles.data_id, data_roles.role_id";
           String dataRoleListSql = "select data_table.id as 'data_id', " +
-    		  "group_concat(data_roles.role_id separator ', ') as 'role_id' " +
+    		  "group_concat(data_roles.role_id separator ',') as 'role_ids' " +
+    		  ", data_table.data " +
     		  "from data_table " + 
     		  "inner join data_roles " +
     		  "on data_table.id=data_roles.data_id " +
@@ -94,10 +106,41 @@ public class TestSQLQuery {
 
           stmt = con.prepareStatement(dataRoleListSql);
           rs = stmt.executeQuery(); 
+          String dataID = null;
+          String roleIDs = null;
+          String[] dataRoles = null;
+          boolean addData = true;
+          ArrayList<String> readableData = new ArrayList<String>();
           while (rs.next()) {
-        	  String dataID = rs.getString("data_id");
-        	  roleID = rs.getString("role_id");
-        	  System.out.println(dataID + "     " + roleID);
+        	  dataID = rs.getString("data_id");
+        	  roleIDs = rs.getString("role_ids");
+        	  System.out.println(dataID + "     " + roleIDs);
+        	  dataRoles = roleIDs.split(",");
+        	  
+        	  // If the user's roles contain all the roles that the current data
+        	  // row is labeled with, then the user can read the data from the 
+        	  // current data row.
+        	  // NOTE: the user may have additional roles but needs to contain
+        	  //       at least the set of roles that the current data row is 
+        	  //       labeled with.
+        	  for (int i = 0; i < dataRoles.length; i++) {
+        		  if (!userRoles.contains(dataRoles[i])) {
+        			  addData = false;
+        			  break;
+        		  }
+        	  }
+        	  
+        	  if (addData) {
+        		  readableData.add(rs.getString("data"));
+        	  }
+        	  
+        	  addData = true;
+          }
+          System.out.println("");
+          
+          System.out.println("The user can read the following data:");
+          for (String data : readableData) {
+        	  System.out.println(data);
           }
       } catch (Exception e) {
           e.printStackTrace();
