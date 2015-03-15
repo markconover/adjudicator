@@ -50,7 +50,8 @@
 	}
 
   	Statement stmt = conn.createStatement();
-  	ResultSet rs = stmt.executeQuery("SELECT role_name FROM adjudicator.user_roles");
+  	ResultSet rs = stmt.executeQuery(
+      "SELECT role_name FROM adjudicator.user_roles");
   	ResultSetMetaData resMetaData = rs.getMetaData();
   	String role = null;
 %>
