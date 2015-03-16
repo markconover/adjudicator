@@ -28,9 +28,9 @@ public class AddRoleServlet extends HttpServlet {
  	/**
  	 * Handles the HTTP POST
  	 *
- 	 * @param request
+ 	 * @param req
  	 *            servlet request
- 	 * @param response
+ 	 * @param resp
  	 *            servlet response
  	 * @throws ServletException
  	 *             if a servlet-specific error occurs
@@ -38,27 +38,27 @@ public class AddRoleServlet extends HttpServlet {
  	 *             if an I/O error occurs
  	 */
  	@Override
- 	protected void doPost(HttpServletRequest request,
- 			HttpServletResponse response) throws ServletException, IOException {
- 		processRequest(request, response);
+ 	protected void doPost(HttpServletRequest req,
+ 			HttpServletResponse resp) throws ServletException, IOException {
+ 		processRequest(req, resp);
  	}
 
  	/**
  	 * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
  	 * methods.
  	 *
- 	 * @param request
+ 	 * @param req
  	 *            servlet request
- 	 * @param response
+ 	 * @param resp
  	 *            servlet response
  	 * @throws ServletException
  	 *             if a servlet-specific error occurs
  	 * @throws IOException
  	 *             if an I/O error occurs
  	 */
- 	protected void processRequest(HttpServletRequest request,
- 			HttpServletResponse response) throws ServletException, IOException {
- 		String role = request.getParameter("role");
+ 	protected void processRequest(HttpServletRequest req,
+ 			HttpServletResponse resp) throws ServletException, IOException {
+ 		String role = req.getParameter("role");
 
  		// TODO: Verify that the group role does not already
  		// exist/is valid!

@@ -12,11 +12,14 @@
 <html>
 <head>
 	<title>Add User</title>
+	
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
 
 	<!-- Optional theme -->
 	<link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css">
+	
+	<script src="js/jquery/jquery-2.1.3.min.js"></script>
 
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="js/bootstrap/bootstrap.min.js"></script>
@@ -51,7 +54,7 @@
 
   	Statement stmt = conn.createStatement();
   	ResultSet rs = stmt.executeQuery(
-      "SELECT role_name FROM adjudicator.user_roles");
+      "SELECT role_name FROM adjudicator.roles");
   	ResultSetMetaData resMetaData = rs.getMetaData();
   	String role = null;
 %>
@@ -66,36 +69,17 @@
 			<div>
 				<input type="password" name="password" placeholder="password" />
 			</div>
-			<div>Repeat Password</div>
-			<div>
-				<input type="password" name="repeat-password" placeholder="password" />
-			</div>
 			<!-- Dynamically retrieve all role possibilities from database. -->
 			<div>Choose User Role/s</div>
-			<div>
-				<select name="user-role">
-					<% while (rs.next()) { 
-					    role = rs.getString(1);
-					%>
-					<option value="<%= role %>"><%= role %></option>
-					<%}%>
-				</select>
-			</div>
-			<div>Choose Group Role/s</div>
-			<div>
-				<select name="group-role">
-				<%
-			  		stmt = conn.createStatement();
-			  		rs = stmt.executeQuery("SELECT role_name FROM adjudicator.roles");
-			  		resMetaData = rs.getMetaData();
-				%>
-					<% while (rs.next()) { 
-					    role = rs.getString(1);
-					%>
-					<option value="<%= role %>"><%= role %></option>
-					<%}%>
-				</select>
-			</div>
+			<% while (rs.next()) { 
+			    role = rs.getString(1);
+			%>
+				<div class="checkbox">
+					<label>
+						<input name="<%= role %>" type="checkbox" value="<%= role %>"><%= role %>
+					</label>
+				</div>
+			<%}%>
 			<br />
 			<input type="submit" value="Create User" />
 		</fieldset>

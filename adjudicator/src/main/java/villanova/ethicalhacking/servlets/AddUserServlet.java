@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.logging.Logger;
 
 import javax.naming.Context;
@@ -19,6 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import org.apache.commons.httpclient.HttpStatus;
+
 
 public class AddUserServlet extends HttpServlet {
 
@@ -30,9 +34,9 @@ public class AddUserServlet extends HttpServlet {
 	/**
 	 * Handles the HTTP GET
 	 *
-	 * @param request
+	 * @param req
 	 *            servlet request
-	 * @param response
+	 * @param resp
 	 *            servlet response
 	 * @throws ServletException
 	 *             if a servlet-specific error occurs
@@ -40,18 +44,18 @@ public class AddUserServlet extends HttpServlet {
 	 *             if an I/O error occurs
 	 */
 	@Override
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest req,
+			HttpServletResponse resp) throws ServletException, IOException {
 		// TODO: Deny GET requests.
-		//processRequest(request, response);
+		//processRequest(req, resp);
 	}
 
 	/**
 	 * Handles the HTTP POST
 	 *
-	 * @param request
+	 * @param req
 	 *            servlet request
-	 * @param response
+	 * @param resp
 	 *            servlet response
 	 * @throws ServletException
 	 *             if a servlet-specific error occurs
@@ -59,57 +63,95 @@ public class AddUserServlet extends HttpServlet {
 	 *             if an I/O error occurs
 	 */
 	@Override
-	protected void doPost(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		processRequest(request, response);
+	protected void doPost(HttpServletRequest req,
+			HttpServletResponse resp) throws ServletException, IOException {
+		processRequest(req, resp);
 	}
 
 	/**
 	 * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
 	 * methods.
 	 *
-	 * @param request
+	 * @param req
 	 *            servlet request
-	 * @param response
+	 * @param resp
 	 *            servlet response
 	 * @throws ServletException
 	 *             if a servlet-specific error occurs
 	 * @throws IOException
 	 *             if an I/O error occurs
 	 */
-	protected void processRequest(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		String username = request.getParameter("username");
-		String pw = request.getParameter("password");
-		String userRole = request.getParameter("user-role");
-		String groupRole = request.getParameter("group-role");
-
-		// TODO: Verify that the username/password/rolename does not already
-		// exist/is valid!
+	protected void processRequest(HttpServletRequest req,
+			HttpServletResponse resp) throws ServletException, IOException {
+		String username = req.getParameter("username");
+		String pw = req.getParameter("password");
 		
+		// Get the role/s to be assigned to the user
+		@SuppressWarnings("unchecked")
+		Enumeration<String> parameterNames = req.getParameterNames();
+
+		String paramName = null;
+		ArrayList<String> userRoles = new ArrayList<String>();
+		while (parameterNames.hasMoreElements()) {
+			paramName = parameterNames.nextElement();
+
+			if (!paramName.equals("username") 
+				&& !paramName.equals("password")) {
+				
+				userRoles.add(req.getParameter(paramName));			
+			}
+		}
+
+		// TODO: Validate the following:
+		//       * Deny if user already exists.
+		//       * Verify password is not null or empty string.
+		//       * Verify the user is assigned only one of hierarchical roles.
+		//       * Verify the roles exist in the database.
+		//       * Verify the user is assigned to only one team.
+		if (username == null || pw == null || userRoles.size() < 1) {
+			resp.sendError(HttpStatus.SC_BAD_REQUEST);
+		}
+
+
 		String sql = "INSERT INTO adjudicator.users (user_name, user_pass) " +
 			"VALUES (?, ?)";
 		Connection connection = null;
 		PreparedStatement stmt = null;
-  
+		int rowID;
+		ResultSet rs = null;
+		String roleID = null;
 		try {
 		    connection = getConnection();
 		    stmt = connection.prepareStatement(sql);
 		    stmt.setString(1, username);
 		    stmt.setString(2, pw);
-		    stmt.executeUpdate();
+		    rowID = stmt.executeUpdate();	
+		    
+		    // TODO: Close statements and connections between sql statement
+		    //       executions!
+		    
+		    for (String role : userRoles ) {
+			    // Get the role_id for each role and add a the role_id, user_id
+			    // junction to the "user_roles" junction table.
+			    sql = "SELECT * FROM adjudicator.roles WHERE roles.role_name=?";
+			    stmt = connection.prepareStatement(sql);
+			    stmt.setString(1, role);
+			    rs = stmt.executeQuery();
+			    rs.next();
+			    roleID = rs.getString("id");
+			    
+			    sql = "INSERT INTO adjudicator.user_roles (user_id, role_id)" +
+		    		" VALUES (?, ?)";
+			    stmt = connection.prepareStatement(sql);
+			    stmt.setString(1, rowID + "");
+			    stmt.setString(2, roleID);
+			    stmt.executeUpdate();		    
+		    }
+		    
 		} catch (Exception e) {
 			LOGGER.fine("Error when adding user to the database " + e);
 			e.printStackTrace();
 		} 
-		
-		// TODO: Add userRole to the user_roles database if one was specified.
-		// The userRole must be an existing user_roles in the database table.  
-		// If it is not deny the user.
-		
-		// TODO: Add groupRole to the roles database table if one was specified. 
-		// The groupRole must be an existing roles in the database table.  
-		// If it is not deny the user.
 		
 		finally {
 		   try {
@@ -123,6 +165,8 @@ public class AddUserServlet extends HttpServlet {
 		       LOGGER.fine("Error when closing connection." + e);
 	       }
 	   }
+		
+	   // TODO: Send successful 200 OK response!
 	}
 
 	/**
