@@ -43,9 +43,9 @@ public class TestSQLQuery {
     	  
     	  
     	  // Get the user's role id's and flatten the role id's.
-    	  //String user = "Byron Scott";
+    	  String user = "Byron Scott";
     	  //String user = "Mark Madsen";
-    	  String user = "admin";
+    	  //String user = "admin";
     	  String userRolesListSql = "select roles.* " +
 			  "from users, roles, user_roles " +
 			  "where users.id=user_roles.user_id " + 

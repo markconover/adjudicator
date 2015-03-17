@@ -59,7 +59,7 @@
     PreparedStatement stmt = null;
     ArrayList<String> readableData = null;
     try {
-  	  // Get the user's role id's and flatten the role id's.
+  	  // Get the user's role id's
   	  String userRolesListSql = "select roles.* " +
 			  "from users, roles, user_roles " +
 			  "where users.id=user_roles.user_id " + 
