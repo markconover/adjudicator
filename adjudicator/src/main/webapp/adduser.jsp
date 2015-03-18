@@ -4,11 +4,12 @@
 <%@page import="java.sql.Statement" %>
 <%@page import="java.sql.ResultSet" %>
 <%@page import="java.sql.ResultSetMetaData" %>
-<%@page import="com.mysql.*"%>
 <%@page import="javax.naming.Context"%>
 <%@page import="javax.naming.InitialContext"%>
 <%@page import="javax.naming.NamingException"%>
 <%@page import="javax.sql.DataSource" %>
+<%@page import="org.slf4j.Logger" %>
+<%@page import="org.slf4j.LoggerFactory" %>
 <html>
 <head>
 	<title>Add User</title>
@@ -26,35 +27,40 @@
 </head>
 <body>
 <%
-  	Class.forName("com.mysql.jdbc.Driver").newInstance();
+    final Logger LOGGER = LoggerFactory.getLogger(
+   		"villanova.ethicalhacking.adduser-jsp");
+    Class.forName("com.mysql.jdbc.Driver").newInstance();
 
 	// Get DataSource
 	Context ctx = null;
 	try {
-		ctx = new InitialContext();
+	    ctx = new InitialContext();
 	} catch (NamingException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+	   LOGGER.error("Unable to get initial context.\n" + e);
 	}
 	DataSource ds = null;
+	String jdbcDataSource = "java:comp/env/jdbc/adjudicator"; 
 	try {
-		ds = (DataSource)ctx.lookup("java:comp/env/jdbc/adjudicator");
-	} catch (NamingException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
+	    ds = (DataSource)ctx.lookup(jdbcDataSource);
+	} catch (NamingException e) {
+	   LOGGER.error("Unable to lookup the datasource name: " + 
+	       jdbcDataSource + "\n" + e);
 	}
 	// Get Connection and Statement
 	Connection conn = null;
 	try {
-		conn = ds.getConnection();
+	    conn = ds.getConnection();
 	} catch (SQLException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+	   LOGGER.error("Unable to get connection to the database.\n" + e);
 	}
 
   	Statement stmt = conn.createStatement();
-  	ResultSet rs = stmt.executeQuery(
-      "SELECT role_name FROM adjudicator.roles");
+	String sql = "SELECT role_name FROM adjudicator.roles";
+  		
+	LOGGER.info("Getting all available roles from the database.");
+	LOGGER.debug("Executing the following sql query:\n" + sql); 			
+ 
+  	ResultSet rs = stmt.executeQuery(sql);
   	ResultSetMetaData resMetaData = rs.getMetaData();
   	String role = null;
 %>
@@ -85,7 +91,11 @@
 		</fieldset>
 	</form>
 <%
-  conn.close();
- %>
+try {
+    conn.close();
+} catch (SQLException e) {
+    LOGGER.error("Error when closing connection.\n" + e);
+}
+%>
 </body>
 </html>

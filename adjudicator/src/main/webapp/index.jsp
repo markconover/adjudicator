@@ -4,12 +4,13 @@
 <%@page import="java.sql.PreparedStatement" %>
 <%@page import="java.sql.ResultSet" %>
 <%@page import="java.sql.ResultSetMetaData" %>
-<%@page import="com.mysql.*"%>
 <%@page import="javax.naming.Context"%>
 <%@page import="javax.naming.InitialContext"%>
 <%@page import="javax.naming.NamingException"%>
 <%@page import="javax.sql.DataSource" %>
 <%@page import="java.util.ArrayList" %>
+<%@page import="org.slf4j.Logger" %>
+<%@page import="org.slf4j.LoggerFactory" %>
 <html>
 <head>
 	<title>User's data</title>
@@ -28,44 +29,54 @@
 <body>
 <h2>Readable data from the database for this user</h2>
 <%
+    final Logger LOGGER = LoggerFactory.getLogger(
+   		"villanova.ethicalhacking.index-jsp");
+	
 	String user = request.getRemoteUser();
+	
+    LOGGER.info("Getting readable data from the database for user (" + user + 
+   		").");
+		
 	Class.forName("com.mysql.jdbc.Driver").newInstance();
 
-	// Get DataSource
-	Context ctx = null;
-	try {
-		ctx = new InitialContext();
-	} catch (NamingException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
-	DataSource ds = null;
-	try {
-		ds = (DataSource)ctx.lookup("java:comp/env/jdbc/adjudicator");
-	} catch (NamingException e1) {
-		// TODO Auto-generated catch block
-		e1.printStackTrace();
-	}
-	// Get Connection and Statement
-	Connection conn = null;
-	try {
-		conn = ds.getConnection();
-	} catch (SQLException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+    // Get DataSource
+    Context ctx = null;
+    try {
+        ctx = new InitialContext();
+    } catch (NamingException e) {
+       LOGGER.error("Unable to get initial context.\n" + e);
+    }
+    DataSource ds = null;
+    String jdbcDataSource = "java:comp/env/jdbc/adjudicator"; 
+    try {
+        ds = (DataSource)ctx.lookup(jdbcDataSource);
+    } catch (NamingException e) {
+       LOGGER.error("Unable to lookup the datasource name: " + 
+           jdbcDataSource + "\n" + e);
+    }
+    // Get Connection and Statement
+    Connection conn = null;
+    try {
+        conn = ds.getConnection();
+    } catch (SQLException e) {
+       LOGGER.error("Unable to get connection to the database.\n" + e);
+    }
 
 	ResultSet rs = null;
     PreparedStatement stmt = null;
     ArrayList<String> readableData = null;
     try {
-  	  // Get the user's role id's
-  	  String userRolesListSql = "select roles.* " +
+    	// Get the user's role id's
+  	    String userRolesListSql = "select roles.* " +
 			  "from users, roles, user_roles " +
 			  "where users.id=user_roles.user_id " + 
 			  "and users.user_name=? and roles.id=user_roles.role_id";
         stmt = conn.prepareStatement(userRolesListSql);
         stmt.setString(1, user);
+        
+        LOGGER.debug("Executing the following sql query for user (" + user + 
+       		"): \n" + userRolesListSql);
+        
         rs = stmt.executeQuery(); 
         String roleID = null;
         
@@ -93,6 +104,8 @@
   		  "on data_table.id=data_roles.data_id " +
   		  "group by data_id";
 
+        LOGGER.debug("Executing the following sql query:\n" + dataRoleListSql);
+        
         stmt = conn.prepareStatement(dataRoleListSql);
         rs = stmt.executeQuery(); 
         String dataID = null;
@@ -131,20 +144,23 @@
       	  
       	  addData = true;
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+    } catch (SQLException e) {
+        LOGGER.error("Unable to get readable data from the database.\n" + e);
     } finally {
          try {
              rs.close();
          } catch (SQLException e) {
+             LOGGER.error("Error when closing result set.\n" + e);
          }
          try {
              stmt.close();
          } catch (SQLException e) {
+             LOGGER.error("Error when closing statement.\n" + e);
          }
          try {
              conn.close();
          } catch (SQLException e) {
+             LOGGER.error("Error when closing connection.\n" + e);
          }
      }
 %>	

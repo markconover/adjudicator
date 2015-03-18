@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -21,9 +22,8 @@ public class AddRoleServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 957462709932298088L;
 	
-    private static Logger LOGGER = Logger.getLogger(
-		AddRoleServlet.class.getName()); 
-    
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+		AddRoleServlet.class);  
     
  	/**
  	 * Handles the HTTP POST
@@ -73,20 +73,19 @@ public class AddRoleServlet extends HttpServlet {
  		    stmt.setString(1, role);
  		    stmt.executeUpdate();
  		} catch (Exception e) {
- 			LOGGER.fine("Error when adding group role to the database " + e);
- 			e.printStackTrace();
+ 			LOGGER.error("Error when adding group role to the database " + e);
  		}
  		
  		finally {
  		   try {
  		       stmt.close();
  		   } catch (SQLException e) {
- 		       LOGGER.fine("Error when closing statement." + e);
+ 		       LOGGER.error("Error when closing statement.\n" + e);
  		   }
  		   try {
  		       connection.close();
  		   } catch (SQLException e) {
- 		       LOGGER.fine("Error when closing connection." + e);
+ 		       LOGGER.error("Error when closing connection.\n" + e);
  	       }
  	   }
  	}
@@ -103,23 +102,22 @@ public class AddRoleServlet extends HttpServlet {
  		try {
  			ctx = new InitialContext();
  		} catch (NamingException e) {
- 			// TODO Auto-generated catch block
- 			e.printStackTrace();
+  	       LOGGER.error("Unable to get initial context.\n" + e);
  		}
  		DataSource ds = null;
+ 		String jdbcDataSource = "java:comp/env/jdbc/adjudicator"; 
  		try {
- 			ds = (DataSource)ctx.lookup("java:comp/env/jdbc/adjudicator");
- 		} catch (NamingException e1) {
- 			// TODO Auto-generated catch block
- 			e1.printStackTrace();
+ 			ds = (DataSource)ctx.lookup(jdbcDataSource);
+ 		} catch (NamingException e) {
+ 	       LOGGER.error("Unable to lookup the datasource name: " + 
+    		   jdbcDataSource + "\n" + e);
  		}
  		// Get Connection and Statement
  		Connection connection = null;
  		try {
  			connection = ds.getConnection();
  		} catch (SQLException e) {
- 			// TODO Auto-generated catch block
- 			e.printStackTrace();
+	       LOGGER.error("Unable to get connection to the database.\n" + e);
  		}
  		
  	    return connection;

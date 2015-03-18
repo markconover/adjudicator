@@ -1,7 +1,8 @@
 package villanova.ethicalhacking;
 
 import java.io.IOException;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -11,8 +12,8 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 
 public class JAASCallbackHandler implements CallbackHandler {
 
-	private static final Logger LOGGER = Logger
-			.getLogger(JAASCallbackHandler.class.getName());
+	private static final Logger LOGGER = LoggerFactory.getLogger(
+		JAASCallbackHandler.class);
 
 	private String username = null;
 	private String password = null;
@@ -28,7 +29,7 @@ public class JAASCallbackHandler implements CallbackHandler {
 
 	@Override
 	public void handle(Callback[] callbacks) throws IOException,
-			UnsupportedCallbackException {
+		UnsupportedCallbackException {
 
 		LOGGER.info("Callback Handler invoked ");
 
@@ -37,7 +38,8 @@ public class JAASCallbackHandler implements CallbackHandler {
 				NameCallback nameCallback = (NameCallback) callbacks[i];
 				nameCallback.setName(username);
 			} else if (callbacks[i] instanceof PasswordCallback) {
-				PasswordCallback passwordCallback = (PasswordCallback) callbacks[i];
+				PasswordCallback passwordCallback = 
+					(PasswordCallback) callbacks[i];
 				passwordCallback.setPassword(password.toCharArray());
 			} else {
 				throw new UnsupportedCallbackException(callbacks[i],

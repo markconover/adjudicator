@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.security.Principal;
 
 public class JAASRolePrincipal implements Principal, Serializable {
-
+	
+	private static final long serialVersionUID = -4155216953035213174L;
 	private String name;
 
 	/**

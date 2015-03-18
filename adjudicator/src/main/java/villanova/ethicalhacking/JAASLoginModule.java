@@ -9,7 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
@@ -22,8 +23,8 @@ import javax.security.auth.spi.LoginModule;
 
 public class JAASLoginModule implements LoginModule { 
  
-    private static Logger LOGGER = Logger.getLogger(
-		JAASLoginModule.class.getName()); 
+    private static final Logger LOGGER = LoggerFactory.getLogger(
+		JAASLoginModule.class); 
  
     // initial state
     private Subject subject;
@@ -79,13 +80,15 @@ public class JAASLoginModule implements LoginModule {
             password = ((PasswordCallback)callbacks[1]).getPassword();
    
             if (debug) {
-                LOGGER.finer("Username :" + username);
-                LOGGER.finer("Password : " + password);
+                LOGGER.debug("Username :" + username);
+                LOGGER.debug("Password : " + password);
             }
    
             if (username == null || password == null) {
-                LOGGER.fine("Callback handler does not return login data properly");
-                throw new LoginException("Callback handler does not return login data properly"); 
+                LOGGER.error("Callback handler does not return login data " +
+            		"properly");
+                throw new LoginException("Callback handler does not return " + 
+            		"login data properly"); 
             }
    
             if (isValidUser()) { //validate user.
@@ -94,9 +97,9 @@ public class JAASLoginModule implements LoginModule {
             } 
    
         } catch (IOException e) { 
-             e.printStackTrace();
+        	LOGGER.error("Unable to log in user.\n" + e);
         } catch (UnsupportedCallbackException e) {
-             e.printStackTrace();
+        	LOGGER.error("Unable to log in user.\n" + e);
         }
   
         return false;
@@ -110,12 +113,12 @@ public class JAASLoginModule implements LoginModule {
             userPrincipal = new JAASUserPrincipal(username);
             if (!subject.getPrincipals().contains(userPrincipal)) {
                 subject.getPrincipals().add(userPrincipal);
-                LOGGER.finer("User principal added:" + userPrincipal);
+                LOGGER.debug("User principal added:" + userPrincipal);
             }
             passwordPrincipal = new JAASPasswordPrincipal(new String(password)); 
             if (!subject.getPrincipals().contains(passwordPrincipal)) {
                 subject.getPrincipals().add(passwordPrincipal);
-                LOGGER.finer("Password principal added: " + passwordPrincipal);
+                LOGGER.debug("Password principal added: " + passwordPrincipal);
             }
       
             //populate subject with roles.
@@ -124,13 +127,14 @@ public class JAASLoginModule implements LoginModule {
                 JAASRolePrincipal rolePrincipal = new JAASRolePrincipal(role);
                 if (!subject.getPrincipals().contains(rolePrincipal)) {
                     subject.getPrincipals().add(rolePrincipal); 
-                    LOGGER.finer("Role principal added: " + rolePrincipal);
+                    LOGGER.debug("Role principal added: " + rolePrincipal);
                 }
             }
       
             commitSucceeded = true;
       
-            LOGGER.info("Login subject were successfully populated with principals and roles"); 
+            LOGGER.info("Login subject were successfully populated with " +
+        		"principals and roles."); 
       
             return true;
        }
@@ -188,23 +192,22 @@ public class JAASLoginModule implements LoginModule {
               return true;
           }
        } catch (Exception e) {
-           LOGGER.fine("Error when loading user from the database " + e);
-           e.printStackTrace();
+           LOGGER.error("Error when loading user from the database " + e);
        } finally {
            try {
                rs.close();
            } catch (SQLException e) {
-               LOGGER.fine("Error when closing result set." + e);
+               LOGGER.error("Error when closing result set." + e);
            }
            try {
                stmt.close();
            } catch (SQLException e) {
-               LOGGER.fine("Error when closing statement." + e);
+               LOGGER.error("Error when closing statement." + e);
            }
            try {
                con.close();
            } catch (SQLException e) {
-               LOGGER.fine("Error when closing connection." + e);
+               LOGGER.error("Error when closing connection." + e);
            }
        }
        return false;
@@ -234,23 +237,22 @@ public class JAASLoginModule implements LoginModule {
               roleList.add(rs.getString("role_name")); 
           }
       } catch (Exception e) {
-          LOGGER.fine("Error when loading user from the database " + e);
-          e.printStackTrace();
+          LOGGER.error("Error when loading user from the database " + e);
       } finally {
            try {
                rs.close();
            } catch (SQLException e) {
-               LOGGER.fine("Error when closing result set." + e);
+               LOGGER.error("Error when closing result set." + e);
            }
            try {
                stmt.close();
            } catch (SQLException e) {
-               LOGGER.fine("Error when closing statement." + e);
+               LOGGER.error("Error when closing statement." + e);
            }
            try {
                con.close();
            } catch (SQLException e) {
-               LOGGER.fine("Error when closing connection." + e);
+               LOGGER.error("Error when closing connection." + e);
            }
        }
        return roleList;
@@ -275,8 +277,7 @@ public class JAASLoginModule implements LoginModule {
          con = DriverManager.getConnection (dBUrl, dBUser, dBPassword);
       } 
       catch (Exception e) {
-         LOGGER.fine("Error when creating database connection" + e);
-         e.printStackTrace();
+         LOGGER.error("Error when creating database connection" + e);
       } finally {
       }
       return con;
