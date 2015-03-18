@@ -69,11 +69,11 @@
 			<h1>Add User</h1>
 			<div>Username</div>
 			<div>
-				<input type="text" name="username" placeholder="johndoe" />
+				<input type="text" name="username" />
 			</div>
 			<div>Password</div>
 			<div>
-				<input type="password" name="password" placeholder="password" />
+				<input type="password" name="password" />
 			</div>
 			<!-- Dynamically retrieve all role possibilities from database. -->
 			<div>Choose User Role/s</div>

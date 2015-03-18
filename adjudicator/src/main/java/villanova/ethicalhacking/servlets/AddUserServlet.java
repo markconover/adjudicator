@@ -116,6 +116,8 @@ public class AddUserServlet extends HttpServlet {
 					HttpStatus.SC_BAD_REQUEST + ".\n" + e);
 			}
 		}
+		
+		boolean userAdded = false;
 
 		String sql = "INSERT INTO adjudicator.users (user_name, user_pass) " +
 			"VALUES (?, ?)";
@@ -132,8 +134,8 @@ public class AddUserServlet extends HttpServlet {
 			stmt.setString(2, pw);
 			
 			LOGGER.info("Adding user (" + username + ") to the database.");
-			LOGGER.debug("Executing the following sql query to add user (" + 
-				username + "):\n" + sql);
+			LOGGER.debug("Executing the following sql to add user (" + 
+				username + ") to the database:\n" + sql);
 			
 			stmt.executeUpdate();
 			rs = stmt.getGeneratedKeys();
@@ -202,18 +204,45 @@ public class AddUserServlet extends HttpServlet {
 				
 				LOGGER.info("Adding junction to the database for user id (" + 
 					rowID + "), role id (" + roleID + ").");
-				LOGGER.debug("Executing the following sql query to add the " + 
+				LOGGER.debug("Executing the following sql to add the " + 
 					"junction for user id (" + rowID + "), role id (" + roleID + 
 					") to the database:\n" + sql);
 				
 				stmt.executeUpdate();
+				userAdded = true;
 			} catch (LoginException e) {
 				LOGGER.error("Unable to connect to database.\n" + e);
 			} 
 			catch (SQLException e) {
 				LOGGER.error("Unable to add entry to user_roles database.\n" + 
 					e);
-			} finally {
+			} finally {				
+				if (userAdded == false) {
+					// Return successful response message
+					resp.setContentType("text/html;charset=UTF-8");
+					PrintWriter out = null;
+					try {
+						out = resp.getWriter();
+					} catch (IOException e) {
+						LOGGER.error("Unable to get a PrintWriter to return " +
+							"the add user response.\n" + e);
+					}
+					try {
+						out.println("<html>");
+						out.println("<head>");
+						out.println("<title>Servlet</title>");
+						out.println("</head>");
+						out.println("<body>");
+						out.println("<h1>The following user was NOT added to " + 
+							"the database due to server problems:<br />" + 
+							username + "</h1>");
+						out.println("<br/>");
+						out.println("</body>");
+						out.println("</html>");
+					} finally {
+						out.close();
+					}				
+				}
 				try {
 					stmt.close();
 				} catch (SQLException e) {
@@ -243,7 +272,7 @@ public class AddUserServlet extends HttpServlet {
 			out.println("</head>");
 			out.println("<body>");
 			out.println("<h1>The following user was successfully added to " + 
-				"the database:\n" + username + "</h1>");
+				"the database:<br />" + username + "</h1>");
 			out.println("<br/>");
 			out.println("</body>");
 			out.println("</html>");
