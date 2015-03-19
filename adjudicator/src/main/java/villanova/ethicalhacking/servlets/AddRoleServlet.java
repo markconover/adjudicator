@@ -25,7 +25,7 @@ public class AddRoleServlet extends HttpServlet {
 	private static final long serialVersionUID = 957462709932298088L;
 
 	private static final Logger LOGGER = LoggerFactory
-			.getLogger(AddRoleServlet.class);
+		.getLogger(AddRoleServlet.class);
 
 	/**
 	 * Handles the HTTP GET

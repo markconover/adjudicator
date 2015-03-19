@@ -1,3 +1,4 @@
+<%@page language="java" contentType="text/html"%>
 <html>
 <head>
 	<title>Add Role</title>

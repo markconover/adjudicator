@@ -161,6 +161,10 @@
 		<servlet-name>addrole</servlet-name>
 		<servlet-class>villanova.ethicalhacking.servlets.AddRoleServlet</servlet-class>
 	</servlet>
+   <servlet>
+        <servlet-name>adddata</servlet-name>
+        <servlet-class>villanova.ethicalhacking.servlets.AddDataServlet</servlet-class>
+    </servlet>
 
 	<!-- Servlet Mappings -->
 	<!-- The mapping for the default servlet -->
@@ -181,6 +185,10 @@
 		<servlet-name>addrole</servlet-name>
 		<url-pattern>/addrole</url-pattern>
 	</servlet-mapping>
+	   <servlet-mapping>
+        <servlet-name>adddata</servlet-name>
+        <url-pattern>/adddata</url-pattern>
+    </servlet-mapping>
 
 	<!-- Security Constraints -->
 	<security-constraint>
@@ -192,6 +200,8 @@
 			<url-pattern>/adduser</url-pattern>
 			<url-pattern>/addrole.jsp</url-pattern>
 			<url-pattern>/addrole</url-pattern>
+            <url-pattern>/adddata.jsp</url-pattern>
+            <url-pattern>/adddata</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<description />
