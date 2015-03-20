@@ -31,7 +31,7 @@
         "villanova.ethicalhacking.adddata-jsp");
     Class.forName("com.mysql.jdbc.Driver").newInstance();
     
- // Get DataSource
+    // Get DataSource
     Context ctx = null;
     try {
         ctx = new InitialContext();
@@ -46,6 +46,7 @@
        LOGGER.error("Unable to lookup the datasource name: " + 
            jdbcDataSource + "\n" + e);
     }
+    
     // Get Connection and Statement
     Connection conn = null;
     try {
@@ -58,7 +59,7 @@
     String sql = "SELECT role_name FROM adjudicator.roles";
         
     LOGGER.info("Getting all available roles from the database.");
-    LOGGER.debug("Executing the following sql query:\n" + sql);             
+    LOGGER.debug("Executing the following sql query:\n" + sql);  
  
     ResultSet rs = stmt.executeQuery(sql);
     ResultSetMetaData resMetaData = rs.getMetaData();

@@ -192,16 +192,14 @@
 
 	<!-- Security Constraints -->
 	<security-constraint>
-		<display-name>All web pages</display-name>
+		<display-name>JSP Pages</display-name>
 		<web-resource-collection>
 			<web-resource-name>AdjudicatorProject</web-resource-name>
 			<description />
 			<url-pattern>/adduser.jsp</url-pattern>
-			<url-pattern>/adduser</url-pattern>
 			<url-pattern>/addrole.jsp</url-pattern>
-			<url-pattern>/addrole</url-pattern>
             <url-pattern>/adddata.jsp</url-pattern>
-            <url-pattern>/adddata</url-pattern>
+            <http-method>GET</http-method>
 		</web-resource-collection>
 		<auth-constraint>
 			<description />
@@ -209,12 +207,29 @@
 		</auth-constraint>
 	</security-constraint>
 	
+   <security-constraint>
+        <display-name>HTML Form Servlets</display-name>
+        <web-resource-collection>
+            <web-resource-name>AdjudicatorProject</web-resource-name>
+            <description />
+            <url-pattern>/adduser</url-pattern>
+            <url-pattern>/addrole</url-pattern>
+            <url-pattern>/adddata</url-pattern>
+            <http-method>POST</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <description />
+            <role-name>Administrator</role-name>
+        </auth-constraint>
+    </security-constraint>
+	
 	<security-constraint>
 		<display-name>Read Only</display-name>
 		<web-resource-collection>
 			<web-resource-name>AdjudicatorProject</web-resource-name>
 			<description />
 			<url-pattern>/index.jsp</url-pattern>
+            <http-method>GET</http-method>
 		</web-resource-collection>
 		<auth-constraint>
 			<description />

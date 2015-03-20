@@ -54,6 +54,7 @@
        LOGGER.error("Unable to lookup the datasource name: " + 
            jdbcDataSource + "\n" + e);
     }
+    
     // Get Connection and Statement
     Connection conn = null;
     try {
@@ -65,6 +66,14 @@
 	ResultSet rs = null;
     PreparedStatement stmt = null;
     ArrayList<String> readableData = null;
+    String stmtText = null;
+    
+    // the user's non-hierarchial role/s
+    ArrayList<String> userNonHierarchyRoles = null;
+    
+    // the user's hierarchial role
+    String userHierarchyRole = null;
+    
     try {
     	// Get the user's role id's
   	    String userRolesListSql = "select roles.* " +
@@ -74,28 +83,46 @@
         stmt = conn.prepareStatement(userRolesListSql);
         stmt.setString(1, user);
         
+        // Log the statement being executed
+        stmtText = stmt.toString();
+        userRolesListSql = stmtText.substring(stmtText.indexOf( ": " 
+       		) + 2);
         LOGGER.debug("Executing the following sql query for user (" + user + 
        		"): \n" + userRolesListSql);
         
         rs = stmt.executeQuery(); 
         String roleID = null;
         
-        // the user's non-hierarchial role/s
-        ArrayList<String> userRoles = new ArrayList<String>();
+        userNonHierarchyRoles = new ArrayList<String>();
         
-        // the user's hierarchial role
-        String userHierarchyRole = null;
+        userHierarchyRole = null;
 
         while (rs.next()) {
       	  roleID = rs.getString("id");
       	  if (roleID.equals("3") || roleID.equals("4") 
   			  || roleID.equals("5")) {       		  
+      		  
       		  userHierarchyRole = roleID;
       	  } else {
-      		  userRoles.add(roleID);
+      		  userNonHierarchyRoles.add(roleID);
       	  }
         }
-
+    } catch (SQLException e) {
+        LOGGER.error("Unable to get readable data from the database.\n" + e);
+    } finally {
+         try {
+             rs.close();
+         } catch (SQLException e) {
+             LOGGER.error("Error when closing result set.\n" + e);
+         }
+         try {
+             stmt.close();
+         } catch (SQLException e) {
+             LOGGER.error("Error when closing statement.\n" + e);
+         }
+    }
+    
+    try {
         String dataRoleListSql = "select data_table.id as 'data_id', " +
   		  "group_concat(data_roles.role_id separator ',') as 'role_ids' " +
   		  ", data_table.data " +
@@ -103,15 +130,20 @@
   		  "inner join data_roles " +
   		  "on data_table.id=data_roles.data_id " +
   		  "group by data_id";
-
-        LOGGER.debug("Executing the following sql query:\n" + dataRoleListSql);
         
         stmt = conn.prepareStatement(dataRoleListSql);
+        
+        // Log the statement being executed
+        stmtText = stmt.toString();
+        dataRoleListSql = stmtText.substring(stmtText.indexOf( ": " 
+       	    ) + 2);
+        LOGGER.debug("Executing the following sql query:\n" + dataRoleListSql);
+        
         rs = stmt.executeQuery(); 
         String dataID = null;
         String roleIDs = null;
         String[] dataRoles = null;
-        boolean addData = true;
+        boolean readData = true;
         readableData = new ArrayList<String>();
         ArrayList<String> dataHierarchialRoles = null;
         while (rs.next()) {
@@ -130,19 +162,19 @@
   				  || dataRoles[i].equals("5")) {
       			  
       			  dataHierarchialRoles.add(dataRoles[i]);
-      		  } else if (!userRoles.contains(dataRoles[i])) {
+      		  } else if (!userNonHierarchyRoles.contains(dataRoles[i])) {
       			  // user does not contain this non-hierarchial role and
       			  // therefore cannot read this data
-      			  addData = false;
+      			  readData = false;
       			  break;
       		  }
       	  }
       	  
-      	  if (addData && dataHierarchialRoles.contains(userHierarchyRole)) {     		  
+      	  if (readData && dataHierarchialRoles.contains(userHierarchyRole)) {     		  
       		  readableData.add(rs.getString("data"));
       	  }
       	  
-      	  addData = true;
+      	  readData = true;
         }
     } catch (SQLException e) {
         LOGGER.error("Unable to get readable data from the database.\n" + e);

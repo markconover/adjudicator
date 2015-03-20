@@ -46,6 +46,7 @@
 	   LOGGER.error("Unable to lookup the datasource name: " + 
 	       jdbcDataSource + "\n" + e);
 	}
+	
 	// Get Connection and Statement
 	Connection conn = null;
 	try {

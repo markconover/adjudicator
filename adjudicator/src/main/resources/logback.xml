@@ -19,7 +19,7 @@
     <!-- Note: INFO log level includes info, warn, error log statements
          Reference: http://logback.qos.ch/manual/architecture.html 
     -->
-	<logger name="villanova.ethicalhacking" level="INFO" additivity="false">
+	<logger name="villanova.ethicalhacking" level="DEBUG" additivity="false">
 		<appender-ref ref="FILE" />
 	</logger>
 

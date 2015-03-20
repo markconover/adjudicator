@@ -82,6 +82,7 @@ public class AddDataServlet extends HttpServlet {
 	 */
 	protected void processRequest(HttpServletRequest req,
 			HttpServletResponse resp) throws ServletException, IOException {
+		
 		String data = req.getParameter("data");
 		
 		// Get the role/s to be assigned to the data
@@ -89,90 +90,71 @@ public class AddDataServlet extends HttpServlet {
 		Enumeration<String> parameterNames = req.getParameterNames();
 
 		String paramName = null;
-		ArrayList<String> userRoles = new ArrayList<String>();
+		ArrayList<String> roles = new ArrayList<String>();
 		while (parameterNames.hasMoreElements()) {
 			paramName = parameterNames.nextElement();
 
 			if (!paramName.equals("data")) {
 
-				userRoles.add(req.getParameter(paramName));
-			}
-		}
-
-		// TODO: Validate the following:
-		// * Verify the roles exist in the database.
-		if (data == null || userRoles.size() < 1) {
-			try {
-				resp.sendError(HttpStatus.SC_BAD_REQUEST);
-			} catch (IOException e) {
-				LOGGER.error("Unable to send HTTP response type " + 
-					HttpStatus.SC_BAD_REQUEST + ".\n" + e);
+				roles.add(req.getParameter(paramName));
 			}
 		}
 		
-		boolean dataAdded = false;
-
-		String sql = "INSERT INTO adjudicator.data_table (data) " +
-			"VALUES (?)";
-		Connection connection = null;
-		PreparedStatement stmt = null;
-		int rowID = 0;
-		ResultSet rs = null;
-		String roleID = null;
-		try {
-			connection = getConnection();
-			String[] returnColumnNames = {"id"};
-			stmt = connection.prepareStatement(sql,returnColumnNames);
-			stmt.setString(1, data);
-			
-			LOGGER.info("Adding data (" + data + ") to the database.");
-			LOGGER.debug("Executing the following sql to add data (" + 
-				data + ") to the database:\n" + sql);
-			
-			stmt.executeUpdate();
-			rs = stmt.getGeneratedKeys();
-			if (rs.next()) {
-				rowID = rs.getInt(1);
-			}
-		} catch (LoginException e) {
-			LOGGER.error("Unable to connect to database.\n" + e);
-		} catch (SQLException e) {
-			LOGGER.error("Unable to add data to the database.\n" + e);
-		} finally {
+		// Deny the add data request if no hierarchical role was assigned to 
+		// the data or if the data is null/empty
+		if (data == null || data.trim().equals("") 
+			|| (!roles.contains("Head Coach") 
+				&& !roles.contains("Assistant Coach") 
+				&& !roles.contains("Player"))) {
 			try {
-				stmt.close();
-			} catch (SQLException e) {
-				LOGGER.error("Error when closing statement.\n" + e);
+				resp.sendError(HttpStatus.SC_BAD_REQUEST, "The data must not " +
+					"be null/empty string and the data must be assigned at " + 
+					"least one hierarchical role.");
+			} catch (IOException e) {
+				LOGGER.error("Unable to send HTTP response type " + 
+					HttpStatus.SC_BAD_REQUEST + ".\n" + e);
+			} catch (IllegalStateException e) {
+				LOGGER.error("Unable to send HTTP response type " + 
+					HttpStatus.SC_BAD_REQUEST + ".\n" + e);
 			}
-			try {
-				connection.close();
-			} catch (SQLException e) {
-				LOGGER.error("Error when closing connection.\n" + e);
-			}
-		}
-
-		for (String role : userRoles) {
-			// Get the role_id for each role and add the role_id, data_id
-			// junction to the "data_roles" junction table.
-			sql = "SELECT * FROM adjudicator.roles WHERE roles.role_name=?";
+		} else {
+		
+			// TODO: Verify the roles exist in the database.
+			
+			boolean dataAdded = false;
+	
+			String sql = "INSERT INTO adjudicator.data_table (data) " +
+				"VALUES (?)";
+			Connection connection = null;
+			PreparedStatement stmt = null;
+			int rowID = 0;
+			ResultSet rs = null;
+			String roleID = null;
+			String stmtText = null;
 			try {
 				connection = getConnection();
-				stmt = connection.prepareStatement(sql);
-				stmt.setString(1, role);
+				String[] returnColumnNames = {"id"};
+				stmt = connection.prepareStatement(sql,returnColumnNames);
+				stmt.setString(1, data);
 				
-				LOGGER.info("Getting the id for role (" + role + 
-					") from the database.");
-				LOGGER.debug("Executing the following sql query to get the " + 
-					"id for role (" + role + ") from the database.\n" + sql);
+				LOGGER.info("Adding data (" + data + ") to the database.");
 				
-				rs = stmt.executeQuery();
-				rs.next();
-				roleID = rs.getString("id");
+				// Log the statement being executed
+			    stmtText = stmt.toString();
+			    sql = stmtText.substring(stmtText.indexOf( ": " 
+			        ) + 2);
+				LOGGER.debug("Executing the following sql to add data (" + 
+					data + ") to the database:\n" + sql);
+				
+				stmt.executeUpdate();
+				rs = stmt.getGeneratedKeys();
+				if (rs.next()) {
+					rowID = rs.getInt(1);
+				}
 			} catch (LoginException e) {
 				LOGGER.error("Unable to connect to database.\n" + e);
 			} catch (SQLException e) {
-				LOGGER.error("Unable to select adjudicator roles from the "
-						+ "database.\n" + e);
+				LOGGER.error("Unable to add data to the database.\n" + e);
 			} finally {
 				try {
 					stmt.close();
@@ -186,90 +168,153 @@ public class AddDataServlet extends HttpServlet {
 				}
 			}
 			
-			sql = "INSERT INTO adjudicator.data_roles (data_id, role_id)" +
-				" VALUES (?, ?)";
-			try {
-				connection = getConnection();
-				stmt = connection.prepareStatement(sql);
-				stmt.setString(1, rowID + "");
-				stmt.setString(2, roleID);
+			// Add "read down" privileges
+			if (roles.contains("Player")) {
+				// "Head Coach" role
 				
-				LOGGER.info("Adding junction to the database for data id (" + 
-					rowID + "), role id (" + roleID + ").");
-				LOGGER.debug("Executing the following sql to add the " + 
-					"junction for data id (" + rowID + "), role id (" + roleID + 
-					") to the database:\n" + sql);
+				if (!roles.contains("Head Coach")) {
+					roles.add("Head Coach");
+				}
 				
-				stmt.executeUpdate();
-				dataAdded = true;
-			} catch (LoginException e) {
-				LOGGER.error("Unable to connect to database.\n" + e);
-			} 
-			catch (SQLException e) {
-				LOGGER.error("Unable to add entry to data_roles database.\n" + 
-					e);
-			} finally {				
-				if (dataAdded == false) {
-					// Return successful response message
-					resp.setContentType("text/html;charset=UTF-8");
-					PrintWriter out = null;
+				if (!roles.contains("Assistant Coach")) {
+					roles.add("Assistant Coach");
+				}
+			}			
+			if (roles.contains("Assistant Coach") 
+				&& !roles.contains("Head Coach")) {
+				roles.add("Head Coach");
+			}
+	
+			for (String role : roles) {
+				// Get the role_id for each role and add the role_id, data_id
+				// junction to the "data_roles" junction table.
+				sql = "SELECT * FROM adjudicator.roles WHERE roles.role_name=?";
+				try {
+					connection = getConnection();
+					stmt = connection.prepareStatement(sql);
+					stmt.setString(1, role);
+					
+					LOGGER.info("Getting the id for role (" + role + 
+						") from the database.");
+					
+					// Log the statement being executed
+				    stmtText = stmt.toString();
+				    sql = stmtText.substring(stmtText.indexOf( ": " 
+				        ) + 2);
+					LOGGER.debug("Executing the following sql query to get the " + 
+						"id for role (" + role + ") from the database.\n" + sql);
+					
+					rs = stmt.executeQuery();
+					rs.next();
+					roleID = rs.getString("id");
+				} catch (LoginException e) {
+					LOGGER.error("Unable to connect to database.\n" + e);
+				} catch (SQLException e) {
+					LOGGER.error("Unable to select adjudicator roles from the "
+							+ "database.\n" + e);
+				} finally {
 					try {
-						out = resp.getWriter();
-					} catch (IOException e) {
-						LOGGER.error("Unable to get a PrintWriter to return " +
-							"the add data response.\n" + e);
+						stmt.close();
+					} catch (SQLException e) {
+						LOGGER.error("Error when closing statement.\n" + e);
 					}
 					try {
-						out.println("<html>");
-						out.println("<head>");
-						out.println("<title>Servlet</title>");
-						out.println("</head>");
-						out.println("<body>");
-						out.println("<h1>The following data was NOT added to " + 
-							"the database due to server problems:<br />" + 
-							data + "</h1>");
-						out.println("<br/>");
-						out.println("</body>");
-						out.println("</html>");
-					} finally {
-						out.close();
-					}				
+						connection.close();
+					} catch (SQLException e) {
+						LOGGER.error("Error when closing connection.\n" + e);
+					}
 				}
+				
+				sql = "INSERT INTO adjudicator.data_roles (data_id, role_id)" +
+					" VALUES (?, ?)";
 				try {
-					stmt.close();
-				} catch (SQLException e) {
-					LOGGER.error("Error when closing statement.\n" + e);
-				}
-				try {
-					connection.close();
-				} catch (SQLException e) {
-					LOGGER.error("Error when closing connection.\n" + e);
+					connection = getConnection();
+					stmt = connection.prepareStatement(sql);
+					stmt.setString(1, rowID + "");
+					stmt.setString(2, roleID);
+					
+					LOGGER.info("Adding junction to the database for data id (" + 
+						rowID + "), role id (" + roleID + ").");
+					
+					// Log the statement being executed
+				    stmtText = stmt.toString();
+				    sql = stmtText.substring(stmtText.indexOf( ": " 
+				        ) + 2);
+					LOGGER.debug("Executing the following sql to add the " + 
+						"junction for data id (" + rowID + "), role id (" + roleID + 
+						") to the database:\n" + sql);
+					
+					stmt.executeUpdate();
+					dataAdded = true;
+				} catch (LoginException e) {
+					LOGGER.error("Unable to connect to database.\n" + e);
+				} 
+				catch (SQLException e) {
+					LOGGER.error("Unable to add entry to data_roles database.\n" + 
+						e);
+				} finally {				
+					if (dataAdded == false) {
+						// Return successful response message
+						resp.setContentType("text/html;charset=UTF-8");
+						PrintWriter out = null;
+						try {
+							out = resp.getWriter();
+						} catch (IOException e) {
+							LOGGER.error("Unable to get a PrintWriter to return " +
+								"the add data response.\n" + e);
+						}
+						try {
+							out.println("<html>");
+							out.println("<head>");
+							out.println("<title>Servlet</title>");
+							out.println("</head>");
+							out.println("<body>");
+							out.println("<h1>The following data was NOT added to " + 
+								"the database due to server problems:<br />" + 
+								data + "</h1>");
+							out.println("<br/>");
+							out.println("</body>");
+							out.println("</html>");
+						} finally {
+							out.close();
+						}				
+					}
+					try {
+						stmt.close();
+					} catch (SQLException e) {
+						LOGGER.error("Error when closing statement.\n" + e);
+					}
+					try {
+						connection.close();
+					} catch (SQLException e) {
+						LOGGER.error("Error when closing connection.\n" + e);
+					}
 				}
 			}
-		}
-
-		// Return successful response message
-		resp.setContentType("text/html;charset=UTF-8");
-		PrintWriter out = null;
-		try {
-			out = resp.getWriter();
-		} catch (IOException e) {
-			LOGGER.error("Unable to get a PrintWriter to return the add data " +
-				"response.\n" + e);
-		}
-		try {
-			out.println("<html>");
-			out.println("<head>");
-			out.println("<title>Servlet</title>");
-			out.println("</head>");
-			out.println("<body>");
-			out.println("<h1>The following data was successfully added to " + 
-				"the database:<br />" + data + "</h1>");
-			out.println("<br/>");
-			out.println("</body>");
-			out.println("</html>");
-		} finally {
-			out.close();
+	
+			// Return successful response message
+			resp.setContentType("text/html;charset=UTF-8");
+			PrintWriter out = null;
+			try {
+				out = resp.getWriter();
+			} catch (IOException e) {
+				LOGGER.error("Unable to get a PrintWriter to return the add data " +
+					"response.\n" + e);
+			}
+			try {
+				out.println("<html>");
+				out.println("<head>");
+				out.println("<title>Servlet</title>");
+				out.println("</head>");
+				out.println("<body>");
+				out.println("<h1>The following data was successfully added to " + 
+					"the database:<br />" + data + "</h1>");
+				out.println("<br/>");
+				out.println("</body>");
+				out.println("</html>");
+			} finally {
+				out.close();
+			}
 		}
 	}
 
